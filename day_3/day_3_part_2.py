@@ -9,24 +9,25 @@ def initial_battery(battery_bank):
             peak_position = i
     return (peak_position)
 
-# from the full bank, keep the 12 highest digits in original order
+# from the full bank, keep the lexicographically largest 12-digit subsequence
 def calculate_joltage(battery_bank):
-    digits = [int(ch) for ch in battery_bank if ch.isdigit()]
-    top12 = sorted(digits, reverse=True)[:12]
-    counts = {}
-    for digit in top12:
-        counts[digit] = counts.get(digit, 0) + 1
+    digits = [ch for ch in battery_bank if ch.isdigit()]
+    target_len = 12
+    stack = []
+    total = len(digits)
 
-    joltage_digits = []
-    for ch in battery_bank:
-        if not ch.isdigit():
-            continue
-        digit = int(ch)
-        if counts.get(digit, 0) > 0:
-            joltage_digits.append(ch)
-            counts[digit] -= 1
+    for idx, ch in enumerate(digits):
+        remaining = total - idx
+        while (
+            stack
+            and stack[-1] < ch
+            and (len(stack) - 1 + remaining) >= target_len
+        ):
+            stack.pop()
+        if len(stack) < target_len:
+            stack.append(ch)
 
-    joltage = "".join(joltage_digits)
+    joltage = "".join(stack)
     print(f"Battery bank: {battery_bank}, Top 12 peaks: {joltage}")
     return joltage
     
