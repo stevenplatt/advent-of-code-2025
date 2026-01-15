@@ -9,22 +9,33 @@ def initial_battery(battery_bank):
             peak_position = i
     return (peak_position)
 
-# not working correctly yet
-# from the peak position (inclusive), loop and remove the lowest digit each time, until 12 digits are left in the joltage
-def calculate_joltage(battery_bank, peak_position):
-    joltage = battery_bank[peak_position:]
-    while len(joltage) > 12:
-        
+# from the full bank, keep the 12 highest digits in original order
+def calculate_joltage(battery_bank):
+    digits = [int(ch) for ch in battery_bank if ch.isdigit()]
+    top12 = sorted(digits, reverse=True)[:12]
+    counts = {}
+    for digit in top12:
+        counts[digit] = counts.get(digit, 0) + 1
 
-    print (f"Battery bank: {battery_bank}, Top 12 peaks: {joltage}")
-    return (joltage)
+    joltage_digits = []
+    for ch in battery_bank:
+        if not ch.isdigit():
+            continue
+        digit = int(ch)
+        if counts.get(digit, 0) > 0:
+            joltage_digits.append(ch)
+            counts[digit] -= 1
+
+    joltage = "".join(joltage_digits)
+    print(f"Battery bank: {battery_bank}, Top 12 peaks: {joltage}")
+    return joltage
     
 
 def parse_file(input_file):
     total_joltage = 0
     for line in input_file:
         joltage = calculate_joltage(line.strip())
-        total_joltage += joltage
+        total_joltage += int(joltage)
     print(f"Total joltage: {total_joltage}")
 
 if __name__ == "__main__":
